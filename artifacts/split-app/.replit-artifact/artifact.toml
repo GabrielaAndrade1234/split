@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Split"
+description = "App mobile-first para jovens adultos registrarem e acertarem despesas compartilhadas em grupos de amigos. Permite criar grupos, adicionar participantes, registrar despesas com pagador e participantes selecionados, calcular saldos e visualizar quem deve pagar quem."
+version = "1.0.0"
+id = "artifacts/split-app"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21032
+
+[services.development]
+run = "pnpm --filter @workspace/split-app run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/split-app", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/split-app/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21032"
+BASE_PATH = "/"

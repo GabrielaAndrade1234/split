@@ -1,0 +1,538 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Split – API for shared expense management
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: grupos
+    description: Group operations
+  - name: participantes
+    description: Participant operations
+  - name: despesas
+    description: Expense operations
+  - name: dividas
+    description: Debt/settlement operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /grupos:
+    get:
+      operationId: listGrupos
+      tags: [grupos]
+      summary: List all groups
+      responses:
+        "200":
+          description: List of groups
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Grupo"
+    post:
+      operationId: createGrupo
+      tags: [grupos]
+      summary: Create a new group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GrupoInput"
+      responses:
+        "201":
+          description: Created group
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Grupo"
+
+  /grupos/{id}:
+    get:
+      operationId: getGrupo
+      tags: [grupos]
+      summary: Get group by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Group
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GrupoDetalhe"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateGrupo
+      tags: [grupos]
+      summary: Update group
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GrupoUpdate"
+      responses:
+        "200":
+          description: Updated group
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Grupo"
+    delete:
+      operationId: deleteGrupo
+      tags: [grupos]
+      summary: Delete group
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /grupos/{id}/resumo:
+    get:
+      operationId: getGrupoResumo
+      tags: [grupos]
+      summary: Get group balance summary (saldo total, a receber, a pagar, recent expenses)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Group summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GrupoResumo"
+        "404":
+          description: Not found
+
+  /grupos/{id}/participantes:
+    get:
+      operationId: listParticipantes
+      tags: [participantes]
+      summary: List participants in a group
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of participants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Participante"
+    post:
+      operationId: createParticipante
+      tags: [participantes]
+      summary: Add participant to group
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ParticipanteInput"
+      responses:
+        "201":
+          description: Created participant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Participante"
+
+  /participantes/{id}:
+    delete:
+      operationId: deleteParticipante
+      tags: [participantes]
+      summary: Remove participant from group
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /grupos/{id}/despesas:
+    get:
+      operationId: listDespesas
+      tags: [despesas]
+      summary: List expenses for a group
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Despesa"
+    post:
+      operationId: createDespesa
+      tags: [despesas]
+      summary: Create expense in a group
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DespesaInput"
+      responses:
+        "201":
+          description: Created expense
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Despesa"
+
+  /despesas/{id}:
+    get:
+      operationId: getDespesa
+      tags: [despesas]
+      summary: Get expense by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Expense
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Despesa"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteDespesa
+      tags: [despesas]
+      summary: Delete expense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /grupos/{id}/dividas:
+    get:
+      operationId: listDividas
+      tags: [dividas]
+      summary: Get simplified debt list for the group (who pays who)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Simplified debt list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DividasResumo"
+        "404":
+          description: Not found
+
+  /grupos/{id}/dividas/pagar:
+    post:
+      operationId: marcarPagamento
+      tags: [dividas]
+      summary: Mark a debt as paid between two participants
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PagamentoInput"
+      responses:
+        "200":
+          description: Payment recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pagamento"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+
+    Grupo:
+      type: object
+      required: [id, nome, dataCriacao, totalParticipantes]
+      properties:
+        id:
+          type: number
+        nome:
+          type: string
+        dataCriacao:
+          type: string
+        totalParticipantes:
+          type: number
+
+    GrupoDetalhe:
+      type: object
+      required: [id, nome, dataCriacao, participantes]
+      properties:
+        id:
+          type: number
+        nome:
+          type: string
+        dataCriacao:
+          type: string
+        participantes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Participante"
+
+    GrupoInput:
+      type: object
+      required: [nome]
+      properties:
+        nome:
+          type: string
+          minLength: 1
+        participantes:
+          type: array
+          items:
+            type: string
+          description: Optional list of participant names to add on creation
+
+    GrupoUpdate:
+      type: object
+      properties:
+        nome:
+          type: string
+          minLength: 1
+
+    GrupoResumo:
+      type: object
+      required: [grupoId, nome, saldoTotal, aReceber, aPagar, transferencias, despesasRecentes]
+      properties:
+        grupoId:
+          type: number
+        nome:
+          type: string
+        saldoTotal:
+          type: number
+        aReceber:
+          type: number
+        aPagar:
+          type: number
+        transferencias:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transferencia"
+        despesasRecentes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Despesa"
+
+    Transferencia:
+      type: object
+      required: [pagadorId, pagadorNome, recebedorId, recebedorNome, valor]
+      properties:
+        pagadorId:
+          type: number
+        pagadorNome:
+          type: string
+        recebedorId:
+          type: number
+        recebedorNome:
+          type: string
+        valor:
+          type: number
+
+    Participante:
+      type: object
+      required: [id, nome, grupoId]
+      properties:
+        id:
+          type: number
+        nome:
+          type: string
+        grupoId:
+          type: number
+
+    ParticipanteInput:
+      type: object
+      required: [nome]
+      properties:
+        nome:
+          type: string
+          minLength: 1
+
+    Despesa:
+      type: object
+      required: [id, descricao, valor, pagadorId, pagadorNome, grupoId, participantes, dataCriacao, categoria]
+      properties:
+        id:
+          type: number
+        descricao:
+          type: string
+        valor:
+          type: number
+        pagadorId:
+          type: number
+        pagadorNome:
+          type: string
+        grupoId:
+          type: number
+        participantes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Participante"
+        dataCriacao:
+          type: string
+        categoria:
+          type: string
+          enum: [restaurante, transporte, hospedagem, lazer, compras, outros]
+
+    DespesaInput:
+      type: object
+      required: [descricao, valor, pagadorId, participanteIds]
+      properties:
+        descricao:
+          type: string
+          minLength: 1
+        valor:
+          type: number
+          minimum: 0.01
+        pagadorId:
+          type: number
+        participanteIds:
+          type: array
+          items:
+            type: number
+          minItems: 1
+        categoria:
+          type: string
+          enum: [restaurante, transporte, hospedagem, lazer, compras, outros]
+
+    DividasResumo:
+      type: object
+      required: [grupoId, nome, transferencias, pagamentos]
+      properties:
+        grupoId:
+          type: number
+        nome:
+          type: string
+        transferencias:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transferencia"
+        pagamentos:
+          type: array
+          items:
+            $ref: "#/components/schemas/Pagamento"
+
+    Pagamento:
+      type: object
+      required: [id, pagadorId, pagadorNome, recebedorId, recebedorNome, valor, status, dataCriacao]
+      properties:
+        id:
+          type: number
+        pagadorId:
+          type: number
+        pagadorNome:
+          type: string
+        recebedorId:
+          type: number
+        recebedorNome:
+          type: string
+        valor:
+          type: number
+        status:
+          type: string
+          enum: [pendente, pago]
+        dataCriacao:
+          type: string
+
+    PagamentoInput:
+      type: object
+      required: [pagadorId, recebedorId, valor]
+      properties:
+        pagadorId:
+          type: number
+        recebedorId:
+          type: number
+        valor:
+          type: number
+          minimum: 0.01

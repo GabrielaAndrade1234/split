@@ -1,0 +1,1 @@
+- [Split app architecture](split-architecture.md) — stack decisions and key gotchas for the Split expense-splitting app.
