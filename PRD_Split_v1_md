@@ -1,0 +1,130 @@
+# PRD --- Split · v1
+
+**Equipe:** Gabriela Andrade, Maria Luiza Mourão, Eduardo Alcides\
+**Data:** 16/08/2026
+
+## 1. Header
+
+-   **Time:** Gabriela Andrade, Maria Luiza Mourão e Eduardo Alcides ---
+    definição do produto e desenvolvimento do PRD
+-   **Última atualização:** 16/08/2026
+-   **Design / telas:** ainda não existe
+-   **Repositório:** ainda não existe
+
+## 2. Problem
+
+**Quem é o cliente?** Jovens adultos que dividem gastos com amigos em
+situações como viagens, restaurantes, festas e atividades em grupo,
+utilizando principalmente o celular.
+
+**Qual é o problema?** Em grupos, pessoas diferentes pagam despesas
+diferentes e nem todos participam de todos os gastos. No momento do
+acerto, é necessário calcular manualmente quanto cada pessoa gastou,
+quanto deveria ter pago e para quem deve transferir dinheiro.
+
+**Como sabemos que isso é um problema?** SEM EVIDÊNCIA --- hipótese de
+problema a ser validada com usuários antes do desenvolvimento.
+
+**Como resolvem hoje?** Cálculos manuais, calculadora, anotações,
+planilhas, grupos de WhatsApp ou aplicativos existentes de divisão de
+despesas.
+
+## 3. Goals
+
+**Métrica de output:** percentual de grupos que chegam a um saldo final
+calculado pelo Split após registrarem suas despesas.
+
+**Métricas de input:** - Percentual de despesas registradas com pagador
+e participantes definidos. - Tempo necessário para registrar uma nova
+despesa e incluí-la no cálculo do grupo. - Percentual de grupos com pelo
+menos duas despesas registradas.
+
+**Non-goals:** - O Split não realizará transferências bancárias ou
+pagamentos dentro do aplicativo na v1. - O Split não será uma conta
+bancária ou carteira digital. - O Split não fará conversão automática
+entre moedas na v1. - O Split não terá chat ou rede social entre
+usuários na v1.
+
+**Guardrail:** o saldo total do grupo deve permanecer matematicamente
+consistente: a soma dos valores a receber deve ser igual à soma dos
+valores a pagar.
+
+## 4. Solution
+
+### Milestone 1 --- Grupo e despesas
+
+-   **P0** · Como usuário, quero criar um grupo e adicionar
+    participantes, para organizar despesas compartilhadas.
+-   **P0** · Como usuário, quero registrar uma despesa informando valor,
+    pagador e participantes, para que o gasto entre no cálculo do grupo.
+-   **P0** · Como usuário, quero escolher quais participantes dividirão
+    cada despesa, para não cobrar de quem não participou daquele gasto.
+-   **P1** · Como usuário, quero adicionar uma descrição e categoria à
+    despesa, para identificar posteriormente o que foi pago.
+
+### Milestone 2 --- Acerto do grupo
+
+-   **P0** · Como usuário, quero visualizar o saldo individual de cada
+    participante, para saber quem pagou acima ou abaixo da sua parte.
+-   **P0** · Como usuário, quero receber uma lista indicando quem deve
+    pagar quem e quanto, para concluir o acerto do grupo.
+-   **P1** · Como usuário, quero marcar uma dívida como paga, para
+    acompanhar quais acertos já foram realizados.
+
+### Stack
+
+-   **Linguagem:** TypeScript
+-   **Framework:** React + Vite
+-   **Banco:** PostgreSQL no Replit
+-   **Por quê:** permite desenvolver a aplicação web e persistir grupos,
+    participantes e despesas dentro do ambiente utilizado para
+    construção do projeto até o Demo Day.
+
+### Dados --- rascunho
+
+-   `grupo` --- `id`, `nome`, `data_criacao`
+-   `participante` --- `id`, `nome`, `grupo_id`
+-   `despesa` --- `id`, `descricao`, `valor`, `pagador_id`, `grupo_id`
+-   `despesa_participante` --- `despesa_id`, `participante_id` (N:N)
+-   `pagamento` --- `id`, `pagador_id`, `recebedor_id`, `valor`,
+    `status`
+
+### Tópicos em aberto
+
+-   Definir se a v1 exigirá criação de conta ou permitirá grupos sem
+    login.
+-   Validar com usuários se a redução do número de transferências é
+    relevante no momento do acerto.
+
+## 5. Launch Plan
+
+-   **Rollout:** teste inicial com um grupo pequeno de usuários antes da
+    demonstração.
+-   **Critério de sucesso:** um grupo consegue criar participantes,
+    registrar pelo menos duas despesas com pagadores diferentes e chegar
+    a um saldo final correto sem realizar cálculos externos.
+-   **O que precisa estar no ar até o Demo Day (08/10):** criação de
+    grupo, participantes, registro de despesas, seleção de participantes
+    por despesa, cálculo de saldos e indicação de quem deve pagar quem.
+
+## 6. Meeting Notes
+
+**16/08/2026 --- Definição do PRD v1**
+
+-   **Decidido:** o MVP será focado no registro e cálculo de despesas
+    compartilhadas, sem processar pagamentos.
+-   **Decidido:** funcionalidades essenciais de cálculo e acerto serão
+    P0; organização adicional e acompanhamento de pagamentos serão P1.
+-   **Em aberto:** necessidade de login e formato de entrada de
+    participantes.
+-   **Em aberto:** validação da hipótese do problema com potenciais
+    usuários.
+
+## 7. Appendix
+
+-   **Brief e decisão técnica:** definidos neste PRD por se tratar da
+    primeira versão do projeto.
+-   **Entrevistas e pesquisa:** SEM EVIDÊNCIA --- ainda não realizadas.
+-   **Concorrentes olhados:** aplicativos existentes de divisão de
+    despesas foram identificados como alternativa atual; análise
+    comparativa ainda não realizada.

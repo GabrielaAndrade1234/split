@@ -1,0 +1,172 @@
+---
+colors:
+  accent: "#A7F3D0"
+  danger: "#C62828"
+  muted: "#5F6B7A"
+  primary: "#5B3FA8"
+  success: "#047A45"
+  surface: "#FFFFFF"
+  text: "#111827"
+components:
+  button:
+    background: colors.primary
+    padding: spacing.md
+    rounded: rounded.md
+    text: colors.surface
+  card:
+    background: colors.surface
+    rounded: rounded.md
+  input:
+    background: colors.surface
+    rounded: rounded.sm
+description: Aplicativo mobile-first para jovens adultos registrarem e
+  acertarem despesas compartilhadas em grupos.
+name: Split
+rounded:
+  full: 999
+  lg: 24
+  md: 12
+  sm: 4
+spacing:
+  lg: 24
+  md: 16
+  sm: 8
+  xl: 40
+  xs: 4
+typography:
+  body:
+    fontFamily: Inter
+    fontSize: 16
+    fontWeight: 400
+  caption:
+    fontFamily: Inter
+    fontSize: 13
+    fontWeight: 400
+  headline:
+    fontFamily: Inter
+    fontSize: 32
+    fontWeight: 700
+  title:
+    fontFamily: Inter
+    fontSize: 20
+    fontWeight: 700
+version: 1.0
+---
+
+# Overview
+
+O Split se parece com um caderno de acerto de viagem entre amigos em São
+Paulo, em 2026: nomes, valores e relações de pagamento aparecem antes de
+elementos decorativos. Ao abrir, a pessoa deve identificar em poucos
+segundos quanto falta acertar e qual é sua próxima ação. O uso acontece
+principalmente no celular, muitas vezes após refeições, viagens ou
+atividades em grupo, com uma mão, em poucos minutos e em conexão móvel.
+
+# Colors
+
+-   `primary` #5B3FA8 --- roxo usado em ações principais, navegação
+    ativa, títulos de destaque e indicadores selecionados. Não ocupa o
+    fundo inteiro das telas.
+-   `accent` #A7F3D0 --- verde menta usado em áreas positivas, estados
+    concluídos e apoio visual. Não substitui o roxo em botões
+    principais.
+-   `surface` #FFFFFF --- fundo de cards, campos e áreas de conteúdo.
+    Não representa ação.
+-   `text` #111827 --- texto corrido e valores neutros. Contraste com
+    `surface`: 17,74:1.
+-   `muted` #5F6B7A --- metadados e informações secundárias. Contraste
+    com `surface`: 5,43:1; não é usado para valores que determinam o
+    acerto.
+-   `success` #047A45 --- valores a receber e pagamentos positivos.
+    Contraste com `surface`: 5,42:1; não é decorativo.
+-   `danger` #C62828 --- valores a pagar, erros e ações destrutivas.
+    Contraste com `surface`: 5,62:1; não aparece em elementos neutros.
+-   `primary` sobre `surface`: 7,72:1.
+-   `primary` sobre `accent`: 6,02:1. Todos os pares de texto usados
+    atendem ao mínimo de 4,5:1.
+
+# Typography
+
+-   Usar somente Inter, nos pesos 400 e 700.
+-   Peso 700 destaca saldo total, valores a pagar/receber, títulos e a
+    ação principal.
+-   Peso 400 é usado em descrições, nomes, metadados e textos
+    auxiliares.
+-   Não usar caixa alta em texto corrido.
+
+# Layout
+
+-   Escala de espaçamento: 4 / 8 / 16 / 24 / 40 px. Nenhum valor
+    intermediário.
+-   Uma coluna no mobile; no desktop, manter o conteúdo principal em uma
+    coluna central com largura limitada.
+-   Alvo de toque mínimo: 44 × 44 px.
+-   Na tela de resumo, a hierarquia é: saldo do grupo → quem deve para
+    quem → despesas recentes.
+-   Na tela de nova despesa: descrição e valor → pagador → participantes
+    → salvar.
+-   Na tela de dívidas: valores a pagar → valores a receber → marcar
+    pagamento.
+
+# Elevation & Depth
+
+-   O produto usa estrutura predominantemente plana.
+-   Cards podem usar uma única sombra sutil e neutra para separar blocos
+    de saldo e listas do fundo.
+-   Não usar sombra colorida, brilho ou efeito de vidro.
+
+# Shapes
+
+-   Raio padrão: `rounded.md` (12 px) em cards e botão principal para
+    manter a mesma assinatura nas três telas.
+-   Campos usam `rounded.sm` (4 px) para diferenciar entrada de dados de
+    cards de informação.
+-   Avatares e indicadores podem ser circulares; valores e informações
+    financeiras permanecem em blocos retangulares.
+
+# Components
+
+-   Botão primário --- fundo `primary`, texto branco, rótulo direto com
+    verbo de ação; apenas um por tela.
+-   Card de saldo --- título curto, valor principal em 700 e divisão
+    visual entre "A receber" e "A pagar".
+-   Linha de dívida --- nome/relação à esquerda, valor com cor semântica
+    e acesso ao detalhe à direita.
+-   Campo --- rótulo sempre acima; borda neutra; erro aparece abaixo do
+    campo em `danger`.
+-   Seletor de participante --- avatar/nome com seleção roxa e
+    confirmação visual; nunca depender apenas da cor.
+-   Estado positivo/concluído --- usa verde menta como apoio e `success`
+    para texto de valor.
+-   Estado vazio --- explica que ainda não existem despesas e oferece
+    "Adicionar despesa".
+-   Carregando --- usar skeleton nos cards e listas; não substituir a
+    estrutura inteira por spinner.
+-   Confirmação --- marcar uma dívida como paga exige confirmação antes
+    de alterar o saldo.
+
+# Do's and Don'ts
+
+## Faça
+
+-   Mostre o saldo e as relações "quem deve para quem" antes do
+    histórico de despesas.
+-   Use roxo para ações principais e estados selecionados; use verde
+    menta para apoio visual positivo.
+-   Use verde escuro somente para dinheiro a receber e vermelho somente
+    para dinheiro a pagar, erro ou ação destrutiva.
+-   Mantenha "Adicionar/Salvar despesa" ou "Marcar pagamento" como única
+    ação principal de cada tela.
+-   Mostre quem pagou e quem participou antes de salvar uma despesa.
+
+## Não faça
+
+-   Não use verde menta como cor de erro ou para dinheiro a pagar.
+-   Não use roxo e verde menta simultaneamente como duas ações primárias
+    concorrentes na mesma tela.
+-   Não esconda o valor devido dentro de menus, gráficos ou elementos
+    decorativos.
+-   Não misture registro de despesa e transferência bancária: a v1 não
+    processa pagamentos.
+-   Não marque uma dívida como paga sem confirmação explícita do
+    usuário.
