@@ -6,6 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './aiExpenseAnalysis';
+export * from './aiExpenseInput';
+export * from './aiExpenseSuggestion';
+export * from './aiExpenseSuggestionCategoria';
+export * from './aiExpenseUsage';
 export * from './despesa';
 export * from './despesaCategoria';
 export * from './despesaInput';

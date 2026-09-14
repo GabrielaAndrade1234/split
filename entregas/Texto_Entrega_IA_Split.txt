@@ -1,0 +1,30 @@
+FEATURE DE IA — SPLIT
+
+Descrição:
+Implementei um assistente inteligente de despesas na tela “Nova despesa”. O usuário escreve uma frase em linguagem natural, por exemplo: “Gabi pagou 150 reais no jantar para todos”. A IA interpreta o texto e sugere descrição, valor, categoria, pagador e participantes. O formulário é preenchido automaticamente, mas continua aberto para revisão antes de salvar.
+
+Modelo:
+gpt-5.6-luna
+
+Validação real:
+- Entrada: 244 tokens
+- Saída: 67 tokens
+- Total: 311 tokens
+- Custo estimado por chamada: US$ 0,0001292
+- Custo estimado de 1.000 chamadas: US$ 0,1292
+
+Cache e economia:
+As respostas são armazenadas no PostgreSQL usando um hash SHA-256 do grupo, prompt normalizado, participantes e modelo. Ao repetir exatamente o mesmo pedido, a resposta veio do cache sem nova chamada à OpenAI. A repetição economizou US$ 0,0001292.
+
+Em 1.000 pedidos idênticos:
+- Sem cache: US$ 0,1292
+- Com cache: US$ 0,0001292
+- Economia estimada: US$ 0,1290708 (99,9%)
+
+Segurança:
+A chave da OpenAI fica somente no backend, armazenada em Secrets, e nunca é enviada ao navegador.
+
+Arquivos da entrega:
+- Vídeo demonstrativo de até 30 segundos
+- Relatório de custos e cache em PDF
+- Código-fonte no repositório do projeto

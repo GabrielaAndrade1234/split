@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Link, useParams, useLocation } from "wouter";
-import { useGetGrupo, useCreateDespesa, DespesaInputCategoria } from "@workspace/api-client-react";
+import { useGetGrupo, useCreateDespesa, DespesaInputCategoria, useAnalyzeExpenseWithAi, AiExpenseAnalysis } from "@workspace/api-client-react";
 import { TopBar, AvatarInitials } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Utensils, Car, Home, Ticket, ShoppingBag, Box, Loader2, Check } from "lucide-react";
+import { Utensils, Car, Home, Ticket, ShoppingBag, Box, Loader2, Check, Sparkles, Send, AlertCircle, Cpu, Zap, Coins, DollarSign, BarChart3, PiggyBank, XCircle } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 const CATEGORIES = [
@@ -16,6 +16,10 @@ const CATEGORIES = [
   { id: DespesaInputCategoria.compras, icon: <ShoppingBag className="h-5 w-5" />, label: "Compras" },
   { id: DespesaInputCategoria.outros, icon: <Box className="h-5 w-5" />, label: "Outros" },
 ];
+
+function formatUsd(value: number, decimalPlaces: number) {
+  return `US$ ${value.toFixed(decimalPlaces).replace(".", ",")}`;
+}
 
 export default function CreateExpense() {
   const params = useParams();
@@ -28,6 +32,7 @@ export default function CreateExpense() {
   });
 
   const createDespesa = useCreateDespesa();
+  const analyzeExpense = useAnalyzeExpenseWithAi();
 
   const [descricao, setDescricao] = useState("");
   const [valorStr, setValorStr] = useState("");
@@ -35,9 +40,14 @@ export default function CreateExpense() {
   const [pagadorId, setPagadorId] = useState<number | null>(null);
   const [participanteIds, setParticipanteIds] = useState<number[]>([]);
 
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiAnalysis, setAiAnalysis] = useState<AiExpenseAnalysis | null>(null);
+  const initializedGroupId = React.useRef<number | null>(null);
+
   // Initialize all participants selected
   React.useEffect(() => {
-    if (grupo && participanteIds.length === 0 && pagadorId === null) {
+    if (grupo && initializedGroupId.current !== grupo.id) {
+      initializedGroupId.current = grupo.id;
       setParticipanteIds(grupo.participantes.map(p => p.id));
       if (grupo.participantes.length > 0) {
         setPagadorId(grupo.participantes[0].id);
@@ -51,6 +61,42 @@ export default function CreateExpense() {
     } else {
       setParticipanteIds([...participanteIds, pId]);
     }
+  };
+
+  const handleAnalyze = () => {
+    if (!aiPrompt.trim()) return;
+    setAiAnalysis(null); // Clear previous analysis
+    analyzeExpense.mutate(
+      { id, data: { prompt: aiPrompt } },
+      {
+        onSuccess: (data) => {
+          setAiAnalysis(data);
+          const { suggestion } = data;
+          setDescricao(suggestion.descricao);
+          setValorStr(suggestion.valor.toFixed(2).replace('.', ','));
+          const suggestedCategory = CATEGORIES.find(
+            category => category.id === suggestion.categoria,
+          );
+          setCategoria(suggestedCategory?.id ?? DespesaInputCategoria.outros);
+          const suggestedPayer = grupo?.participantes.find(
+            participant => participant.id === suggestion.pagadorId,
+          );
+          if (suggestedPayer) {
+            setPagadorId(suggestedPayer.id);
+          }
+          if (suggestion.participanteIds && suggestion.participanteIds.length > 0) {
+            const validParticipantIds = new Set(
+              grupo?.participantes.map(participant => participant.id) ?? [],
+            );
+            setParticipanteIds(
+              suggestion.participanteIds.filter(participantId =>
+                validParticipantIds.has(participantId),
+              ),
+            );
+          }
+        },
+      }
+    );
   };
 
   const handleSave = () => {
@@ -96,6 +142,66 @@ export default function CreateExpense() {
       
       <div className="mx-auto max-w-md p-4 space-y-6 pt-6">
         
+        {/* AI Integration Box */}
+        <div className="bg-primary/5 border border-primary/20 rounded-[12px] p-4 space-y-3 relative overflow-hidden">
+          <div className="absolute -top-4 -right-4 p-3 opacity-[0.03] pointer-events-none">
+            <Sparkles className="w-32 h-32" />
+          </div>
+          <h3 className="text-sm font-bold text-primary flex items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            Preencher com Inteligência Artificial
+          </h3>
+          <div className="flex gap-2 relative">
+            <Input 
+              value={aiPrompt}
+              onChange={e => setAiPrompt(e.target.value)}
+              placeholder="Ex: Paguei 120 no jantar, divide com a Maria"
+              className="bg-background rounded-[8px]"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleAnalyze();
+              }}
+            />
+            <Button 
+              onClick={handleAnalyze} 
+              disabled={analyzeExpense.isPending || !aiPrompt.trim()}
+              className="rounded-[8px]"
+            >
+              {analyzeExpense.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </Button>
+          </div>
+          
+          {analyzeExpense.isError && (
+            <div className="text-xs text-destructive flex items-center gap-1.5 font-medium bg-destructive/10 p-2.5 rounded-[8px]">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              Não foi possível entender a despesa. Verifique os participantes e tente novamente.
+            </div>
+          )}
+
+          {aiAnalysis && (
+            <div className="mt-4 text-xs space-y-3 border-t border-primary/10 pt-3 relative animate-in fade-in slide-in-from-top-2">
+              <div className="flex items-start gap-2 text-primary-foreground bg-primary p-2.5 rounded-[8px]">
+                <Sparkles className="w-4 h-4 shrink-0 mt-0.5" />
+                <span className="font-medium leading-relaxed">
+                  {aiAnalysis.suggestion.explicacao}
+                </span>
+                <button onClick={() => setAiAnalysis(null)} className="ml-auto opacity-70 hover:opacity-100">
+                  <XCircle className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-2 text-muted-foreground mt-2">
+                <span className="flex items-center gap-1.5"><Cpu className="w-3.5 h-3.5"/> {aiAnalysis.model}</span>
+                {aiAnalysis.cached && <span className="flex items-center gap-1.5 text-success font-medium"><Zap className="w-3.5 h-3.5"/> Cache rápido</span>}
+                <span className="flex items-center gap-1.5"><Coins className="w-3.5 h-3.5"/> {aiAnalysis.usage.totalTokens} tokens</span>
+                <span className="flex items-center gap-1.5"><DollarSign className="w-3.5 h-3.5"/> Custo: {formatUsd(aiAnalysis.usage.estimatedCostUsd, 7)}</span>
+                <span className="flex items-center gap-1.5"><BarChart3 className="w-3.5 h-3.5"/> {formatUsd(aiAnalysis.usage.costPerThousandCallsUsd, 4)} por 1.000 chamadas</span>
+                {aiAnalysis.savedCostUsd > 0 && (
+                  <span className="flex items-center gap-1.5 text-success font-medium"><PiggyBank className="w-3.5 h-3.5"/> Economia: {formatUsd(aiAnalysis.savedCostUsd, 7)}</span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Descrição e Valor */}
         <div className="flex gap-4">
           <div className="flex-1 space-y-2">
@@ -104,7 +210,7 @@ export default function CreateExpense() {
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
               placeholder="Ex: Jantar"
-              className="text-lg py-6 rounded-[4px]"
+              className="text-lg py-6 rounded-[8px]"
             />
           </div>
           <div className="w-1/3 space-y-2">
@@ -115,7 +221,7 @@ export default function CreateExpense() {
               value={valorStr}
               onChange={(e) => setValorStr(e.target.value)}
               placeholder="0,00"
-              className="text-lg py-6 rounded-[4px] text-right font-bold"
+              className="text-lg py-6 rounded-[8px] text-right font-bold"
             />
           </div>
         </div>
@@ -213,7 +319,7 @@ export default function CreateExpense() {
             onClick={handleSave} 
             disabled={!isFormValid || createDespesa.isPending}
             size="lg" 
-            className="w-full rounded-[12px] font-bold h-14 text-lg"
+            className="w-full rounded-[12px] font-bold h-14 text-lg shadow-sm"
           >
             {createDespesa.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
             Salvar despesa

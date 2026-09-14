@@ -338,3 +338,46 @@ export const MarcarPagamentoResponse = zod.object({
 })
 
 
+/**
+ * @summary Turn a natural-language expense into structured form data
+ */
+export const AnalyzeExpenseWithAiParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const analyzeExpenseWithAiBodyPromptMin = 5;
+export const analyzeExpenseWithAiBodyPromptMax = 500;
+
+
+
+export const AnalyzeExpenseWithAiBody = zod.object({
+  "prompt": zod.string().min(analyzeExpenseWithAiBodyPromptMin).max(analyzeExpenseWithAiBodyPromptMax)
+})
+
+export const analyzeExpenseWithAiResponseSuggestionValorMin = 0.01;
+
+
+
+
+export const AnalyzeExpenseWithAiResponse = zod.object({
+  "suggestion": zod.object({
+  "descricao": zod.string(),
+  "valor": zod.number().min(analyzeExpenseWithAiResponseSuggestionValorMin),
+  "categoria": zod.enum(['restaurante', 'transporte', 'hospedagem', 'lazer', 'compras', 'outros']),
+  "pagadorId": zod.number(),
+  "participanteIds": zod.array(zod.number()).min(1),
+  "explicacao": zod.string()
+}),
+  "cached": zod.boolean(),
+  "model": zod.string(),
+  "usage": zod.object({
+  "inputTokens": zod.number(),
+  "outputTokens": zod.number(),
+  "totalTokens": zod.number(),
+  "estimatedCostUsd": zod.number(),
+  "costPerThousandCallsUsd": zod.number()
+}),
+  "savedCostUsd": zod.number()
+})
+
+

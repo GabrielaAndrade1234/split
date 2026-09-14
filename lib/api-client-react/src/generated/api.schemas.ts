@@ -144,3 +144,50 @@ export interface PagamentoInput {
   valor: number;
 }
 
+export interface AiExpenseInput {
+  /**
+     * @minLength 5
+     * @maxLength 500
+     */
+  prompt: string;
+}
+
+export type AiExpenseSuggestionCategoria = typeof AiExpenseSuggestionCategoria[keyof typeof AiExpenseSuggestionCategoria];
+
+
+export const AiExpenseSuggestionCategoria = {
+  restaurante: 'restaurante',
+  transporte: 'transporte',
+  hospedagem: 'hospedagem',
+  lazer: 'lazer',
+  compras: 'compras',
+  outros: 'outros',
+} as const;
+
+export interface AiExpenseSuggestion {
+  descricao: string;
+  /** @minimum 0.01 */
+  valor: number;
+  categoria: AiExpenseSuggestionCategoria;
+  pagadorId: number;
+  /** @minItems 1 */
+  participanteIds: number[];
+  explicacao: string;
+}
+
+export interface AiExpenseUsage {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+  estimatedCostUsd: number;
+  costPerThousandCallsUsd: number;
+}
+
+export interface AiExpenseAnalysis {
+  suggestion: AiExpenseSuggestion;
+  cached: boolean;
+  model: string;
+  usage: AiExpenseUsage;
+  savedCostUsd: number;
+}
+

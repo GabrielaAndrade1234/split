@@ -1,0 +1,29 @@
+kind = "video"
+videoAspectRatio = "16:9"
+previewPath = "/split-ai-demo/"
+title = "Demo da IA do Split"
+description = "Vídeo demonstrativo de até 30 segundos mostrando a IA interpretando uma despesa, preenchendo o formulário e exibindo tokens, custo e economia por cache."
+version = "1.0.0"
+id = "artifacts/split-ai-demo"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/split-ai-demo/" ]
+localPort = 20742
+
+[services.development]
+run = "pnpm --filter @workspace/split-ai-demo run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/split-ai-demo", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/split-ai-demo/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20742"
+BASE_PATH = "/split-ai-demo/"

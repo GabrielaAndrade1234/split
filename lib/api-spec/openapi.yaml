@@ -18,6 +18,8 @@ tags:
     description: Expense operations
   - name: dividas
     description: Debt/settlement operations
+  - name: inteligencia-artificial
+    description: AI-assisted expense operations
 paths:
   /healthz:
     get:
@@ -325,6 +327,33 @@ paths:
               schema:
                 $ref: "#/components/schemas/Pagamento"
 
+  /grupos/{id}/ai/despesa:
+    post:
+      operationId: analyzeExpenseWithAi
+      tags: [inteligencia-artificial]
+      summary: Turn a natural-language expense into structured form data
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiExpenseInput"
+      responses:
+        "200":
+          description: Structured expense suggestion and usage metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiExpenseAnalysis"
+        "404":
+          description: Group not found
+
 components:
   schemas:
     HealthStatus:
@@ -536,3 +565,64 @@ components:
         valor:
           type: number
           minimum: 0.01
+
+    AiExpenseInput:
+      type: object
+      required: [prompt]
+      properties:
+        prompt:
+          type: string
+          minLength: 5
+          maxLength: 500
+
+    AiExpenseSuggestion:
+      type: object
+      required: [descricao, valor, categoria, pagadorId, participanteIds, explicacao]
+      properties:
+        descricao:
+          type: string
+        valor:
+          type: number
+          minimum: 0.01
+        categoria:
+          type: string
+          enum: [restaurante, transporte, hospedagem, lazer, compras, outros]
+        pagadorId:
+          type: number
+        participanteIds:
+          type: array
+          minItems: 1
+          items:
+            type: number
+        explicacao:
+          type: string
+
+    AiExpenseUsage:
+      type: object
+      required: [inputTokens, outputTokens, totalTokens, estimatedCostUsd, costPerThousandCallsUsd]
+      properties:
+        inputTokens:
+          type: number
+        outputTokens:
+          type: number
+        totalTokens:
+          type: number
+        estimatedCostUsd:
+          type: number
+        costPerThousandCallsUsd:
+          type: number
+
+    AiExpenseAnalysis:
+      type: object
+      required: [suggestion, cached, model, usage, savedCostUsd]
+      properties:
+        suggestion:
+          $ref: "#/components/schemas/AiExpenseSuggestion"
+        cached:
+          type: boolean
+        model:
+          type: string
+        usage:
+          $ref: "#/components/schemas/AiExpenseUsage"
+        savedCostUsd:
+          type: number

@@ -20,6 +20,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AiExpenseAnalysis,
+  AiExpenseInput,
   Despesa,
   DespesaInput,
   DividasResumo,
@@ -1248,5 +1250,77 @@ export const useMarcarPagamento = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getMarcarPagamentoMutationOptions(options));
+    }
+
+export const getAnalyzeExpenseWithAiUrl = (id: number,) => {
+
+
+
+
+  return `/api/grupos/${id}/ai/despesa`
+}
+
+/**
+ * @summary Turn a natural-language expense into structured form data
+ */
+export const analyzeExpenseWithAi = async (id: number,
+    aiExpenseInput: AiExpenseInput, options?: Parameters<typeof customFetch>[1]): Promise<AiExpenseAnalysis> => {
+
+  return customFetch<AiExpenseAnalysis>(getAnalyzeExpenseWithAiUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(aiExpenseInput)
+  }
+);}
+
+
+
+
+
+export const getAnalyzeExpenseWithAiMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeExpenseWithAi>>, TError,{id: number;data: BodyType<AiExpenseInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof analyzeExpenseWithAi>>, TError,{id: number;data: BodyType<AiExpenseInput>}, TContext> => {
+
+const mutationKey = ['analyzeExpenseWithAi'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeExpenseWithAi>>, {id: number;data: BodyType<AiExpenseInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  analyzeExpenseWithAi(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AnalyzeExpenseWithAiMutationResult = NonNullable<Awaited<ReturnType<typeof analyzeExpenseWithAi>>>
+    export type AnalyzeExpenseWithAiMutationBody = BodyType<AiExpenseInput>
+    export type AnalyzeExpenseWithAiMutationError = ErrorType<void>
+
+    /**
+ * @summary Turn a natural-language expense into structured form data
+ */
+export const useAnalyzeExpenseWithAi = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeExpenseWithAi>>, TError,{id: number;data: BodyType<AiExpenseInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof analyzeExpenseWithAi>>,
+        TError,
+        {id: number;data: BodyType<AiExpenseInput>},
+        TContext
+      > => {
+      return useMutation(getAnalyzeExpenseWithAiMutationOptions(options));
     }
 

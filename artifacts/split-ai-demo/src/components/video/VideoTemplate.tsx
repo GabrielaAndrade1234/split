@@ -1,0 +1,121 @@
+// Video Template - Replace ReplitLoadingScene with your scenes
+
+import {
+  VideoPausedContext,
+  VideoCanvas,
+  type VideoAspectRatio,
+  useVideoPlayer,
+} from '@/lib/video';
+import { AnimatePresence } from 'framer-motion';
+import {
+  useEffect,
+  useRef,
+  type ComponentType,
+} from 'react';
+
+import { VideoBackground } from './VideoBackground';
+import { SplitUI } from './SplitUI';
+import { Scene0Intro } from './video_scenes/Scene0Intro';
+import { Scene1Typing } from './video_scenes/Scene1Typing';
+import { Scene2Autofill } from './video_scenes/Scene2Autofill';
+import { Scene3Metrics } from './video_scenes/Scene3Metrics';
+import { Scene4Outro } from './video_scenes/Scene4Outro';
+
+export const SCENE_DURATIONS = {
+  intro: 2500,
+  typing: 5000,
+  autofill: 5000,
+  metrics: 7000,
+  outro: 4000,
+};
+
+const VIDEO_ASPECT_RATIO: VideoAspectRatio = '16:9';
+
+const SCENE_COMPONENTS: Record<string, ComponentType> = {
+  intro: Scene0Intro,
+  typing: Scene1Typing,
+  autofill: Scene2Autofill,
+  metrics: Scene3Metrics,
+  outro: Scene4Outro,
+};
+
+const SCENE_START_SEC: Record<string, number> = (() => {
+  const offsets: Record<string, number> = {};
+  let cumulativeMs = 0;
+  for (const [key, duration] of Object.entries(SCENE_DURATIONS)) {
+    offsets[key] = cumulativeMs / 1000;
+    cumulativeMs += duration;
+  }
+  return offsets;
+})();
+
+const AUDIO_SEEK_EPSILON_SEC = 0.18;
+
+export default function VideoTemplate({
+  durations = SCENE_DURATIONS,
+  loop = true,
+  paused = false,
+  muted = false,
+  onSceneChange,
+}: {
+  durations?: Record<string, number>;
+  loop?: boolean;
+  paused?: boolean;
+  muted?: boolean;
+  onSceneChange?: (sceneKey: string) => void;
+} = {}) {
+  const { currentSceneKey } = useVideoPlayer({
+    durations,
+    loop,
+    paused,
+  });
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const lastSceneKeyRef = useRef<string | null>(null);
+  const baseSceneKey = currentSceneKey.replace(/_r[12]$/, '');
+  const sceneIndex = Object.keys(SCENE_DURATIONS).indexOf(baseSceneKey);
+  const SceneComponent = SCENE_COMPONENTS[baseSceneKey];
+
+  useEffect(() => {
+    onSceneChange?.(currentSceneKey);
+  }, [currentSceneKey, onSceneChange]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = 0.45;
+    if (paused) {
+      audio.pause();
+      return;
+    }
+    if (lastSceneKeyRef.current !== currentSceneKey) {
+      lastSceneKeyRef.current = currentSceneKey;
+      const targetTime = SCENE_START_SEC[baseSceneKey] ?? 0;
+      if (Math.abs(audio.currentTime - targetTime) > AUDIO_SEEK_EPSILON_SEC) {
+        audio.currentTime = targetTime;
+      }
+    }
+    audio.play().catch(() => {});
+  }, [baseSceneKey, currentSceneKey, muted, paused]);
+
+  return (
+    <VideoPausedContext.Provider value={paused}>
+      <VideoCanvas
+        aspectRatio={VIDEO_ASPECT_RATIO}
+        style={{ backgroundColor: '#ffffff' }}
+      >
+        <VideoBackground currentScene={sceneIndex} />
+        <SplitUI currentScene={sceneIndex} />
+        <AnimatePresence mode="popLayout">
+          {SceneComponent && <SceneComponent key={currentSceneKey} />}
+        </AnimatePresence>
+        <audio
+          ref={audioRef}
+          src={`${import.meta.env.BASE_URL}audio/bg_music.mp3`}
+          preload="auto"
+          autoPlay
+          muted={muted}
+        />
+      </VideoCanvas>
+    </VideoPausedContext.Provider>
+  );
+}

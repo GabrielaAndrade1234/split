@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "NhHne2iTStySHlRPm9_YV"
+uri = "file://entregas/DER_Split.pdf"
+type = "pdf"
+title = "DER do Split — versão baseada no modelo enviado"
+description = "PDF final de 7 páginas com capa, contexto, dicionário de dados, diagrama em página horizontal, cardinalidades, justificativas e regras de integridade."
+logical_id = "196f2da2-1131-4734-bed0-13f1b442b542"
+content_hash = "sha256:1478718a984ddb2efa2f144c39da3d752aed11901a1b65de844dfe86534ce561"
+size = 16700
+mtime_ms = 1787863518370
+storage_uri = "gcs://replit-rams-assets-picard/rams/assets/repl:d4b83dfc-22d0-43a3-92f4-82daa171808e/196f2da2-1131-4734-bed0-13f1b442b542/96fe87f8-e5b9-456c-b2dc-3d1bc1976e2b"
+storage_version_token = "1787863555252498"
+content_type = "application/pdf"

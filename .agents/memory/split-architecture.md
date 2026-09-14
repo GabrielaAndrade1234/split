@@ -19,9 +19,6 @@ The min-cash-flow greedy algorithm lives in `artifacts/api-server/src/routes/gru
 
 **How to apply:** When recomputing balances, remember that `pagamentosTable` rows must be applied to balances (payer +valor, receiver -valor) to adjust for already-settled debts.
 
-## Seeded data
-- 1 group: "Viagem Praia 🌊" (id=1), 5 participants (Gabi, Ana, Bruno, Clara, Você), 3 expenses (Restaurante beira-mar R$185, Uber R$62.40, Mercado R$120).
-
 ## Design system
 - Primary #5B3FA8 (purple), Accent #A7F3D0 (mint), Success #047A45, Danger #C62828
 - Font: Inter 400/700 only
